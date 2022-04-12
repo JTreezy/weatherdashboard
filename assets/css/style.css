@@ -1,0 +1,40 @@
+* {
+    list-style-type: none;
+}
+
+header {
+    background-color: blue;
+    margin: 0;
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+}
+main {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+}
+
+#container h5 {
+    text-align: center;
+}
+
+.days {
+    background-color: salmon;
+    padding: 10px;
+    margin: 5px;
+}
+
+/* Add CSS to look like functionality on preview, is there a way to hide the cards until search results populate?
