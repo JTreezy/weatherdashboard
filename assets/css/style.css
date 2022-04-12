@@ -9,14 +9,23 @@ header {
     color: white;
     text-align: center;
 }
-form {
+aside {
     display: flex;
     flex-direction: column;
     width: 25%;
+    text-align: center;
 }
+
+aside input {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 main {
     position: relative;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -37,4 +46,13 @@ main {
     margin: 5px;
 }
 
-/* Add CSS to look like functionality on preview, is there a way to hide the cards until search results populate?
+/* Add CSS to look similar to appearance and functionality on preview, is there a way to hide the cards until search results populate?*/
+#current-day {
+    background: black;
+    color: white;
+    padding: 30px;
+}
+
+li {
+    padding: 5px;
+}

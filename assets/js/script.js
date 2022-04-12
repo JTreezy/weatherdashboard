@@ -5,6 +5,7 @@ let geocodeAPIKey = "ODNkZTNmM2E0ZjU0NDVhZmE2NGM1ZWM1MDZkZGQ2ZDI6Njg2ZWIwOGMtZTk
 async function searchCityWeather() {
     //converts text string of a city name to populate lon and lat of city to pass through weatherAPI
     let citySearch = $('#city').val()
+        
     let locationResponse = await fetch(`https://api.myptv.com/geocoding/v1/locations/by-text?searchText=${citySearch}&apiKey=${geocodeAPIKey}`)
     let locationData = await locationResponse.json()
     let lat = locationData.locations[0].referencePosition.latitude
@@ -13,9 +14,13 @@ async function searchCityWeather() {
     //makes a current day weather request
     let weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&appid=${weatherAPIKey}`)
     let weatherData = await weatherResponse.json()
-    console.log("weatherData", weatherData)
+    parseResponse(weatherData, citySearch) 
+    saveResponse(weatherData, citySearch)
+    populateSidebar()
+}
 
-   //variables for current day card population
+function parseResponse(weatherData, citySearch) {
+    //variables for current day card population
     let currentCity = citySearch
     let currentDate = moment().format("M/D/Y")
     let currentTemp = weatherData.current.temp
@@ -34,6 +39,13 @@ async function searchCityWeather() {
 
     //TODO: color the UVI index number background with severity (0-2: Low GREEN, 3-7: Moderate to High YELLOW/ORANGE, 8+: Very High to Extreme RED/PURPLE)
     currentDay.find(".uvi").text(currentUVI)
+    if (currentUVI >= 0 && currentUVI < 3) {
+        $(".uvi").css("background-color", "green")
+    } else if (currentUVI >= 3 && currentUVI < 7) {
+        $(".uvi").css("background-color", "orange")
+    } else {
+        $(".uvi").css("background-color", "red")
+    }
     currentDay.find(".icon").html(`<img src="http://openweathermap.org/img/wn/${currentIMG}@2x.png" />`)
 
 
@@ -41,10 +53,15 @@ async function searchCityWeather() {
     for (let i=0; i < 5; i++) {
         populateDay(i,weatherData.daily[i+1])
     }
+    if (citySearch == "") {
+        $('main').css("display","none")
+    } else {
+        $('main').css("display","flex")      
+    }
 }
 
 function populateDay(offset,data) {
-    let date= moment().add(offset + 1, 'days').format("M/D/Y'")
+    let date= moment().add(offset + 1, 'days').format("M/D/Y")
     let temp = data.temp.day
     let windSpeed = data.wind_speed
     let humidity = data.humidity
@@ -58,9 +75,40 @@ function populateDay(offset,data) {
     child.find(".icon").html(`<img src="http://openweathermap.org/img/wn/${img}@2x.png" />`)
 }
 
-//TODO: how to store city names as container boxes on the left side in localstorage to populate function again 
+// TODO: how to store city names as container boxes on the left side in localstorage to populate function again
+function saveResponse(weatherData,citySearch) {
+    let storedData = localStorage.getItem("cityAndWeatherData")
+    if (storedData == null) {
+        storedData = {}
+    } else {
+        storedData = JSON.parse(storedData)
+    }
+    storedData[citySearch] = weatherData
+    storedData = JSON.stringify(storedData)
+    localStorage.setItem("cityAndWeatherData", storedData)
+}
+
+function populateSidebar() {
+    let storedData = localStorage.getItem("cityAndWeatherData")
+    if (storedData == null) {
+        storedData = {}
+    } else {
+        storedData = JSON.parse(storedData)
+    }
+    $('#previous-searches').html("")
+    for (const content in storedData) {
+        let button = $(`<button>${content}</button>`)
+        button.on('click', function () {
+            parseResponse(storedData[content], content)
+        })
+        $('#previous-searches').append(button)
+        // console.log(storedData[content])
+    }
+}
+
 
 $('#search-button').on('click', async function() {
     await searchCityWeather();
 })
 
+populateSidebar()
